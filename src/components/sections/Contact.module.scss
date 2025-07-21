@@ -1,0 +1,317 @@
+@use '@/styles/variables' as *;
+
+.contact {
+  position: relative;
+  padding: 6rem 0;
+  background: linear-gradient(135deg, var(--color-bg-darker) 0%, var(--color-bg) 100%);
+  color: var(--color-text);
+  overflow: hidden;
+  
+  @media (max-width: 768px) {
+    padding: 4rem 0;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(var(--color-text-rgb), 0.1), transparent);
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.sectionHeading {
+  text-align: center;
+  margin-bottom: 4rem;
+  
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+  
+  .divider {
+    height: 4px;
+    width: 80px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    margin: 0.5rem auto 1.5rem;
+    border-radius: 2px;
+  }
+  
+  .subtitle {
+    max-width: 700px;
+    margin: 0 auto;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--color-text-light);
+  }
+}
+
+.contactContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3rem;
+  margin-top: 3rem;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.contactInfo {
+  padding: 2rem;
+  background: var(--color-bg-lighter);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-text);
+    position: relative;
+    padding-bottom: 1rem;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+      border-radius: 3px;
+    }
+  }
+  
+  .contactText {
+    margin-bottom: 2rem;
+    line-height: 1.7;
+    color: var(--color-text-light);
+  }
+}
+
+.contactDetails {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  
+  li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .contactIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background: rgba(var(--color-primary-rgb), 0.1);
+    border-radius: 10px;
+    color: var(--color-primary);
+    font-size: 1.1rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: var(--color-primary);
+      color: white;
+      transform: translateY(-3px);
+    }
+  }
+  
+  h4 {
+    font-size: 1rem;
+    margin: 0 0 0.2rem;
+    color: var(--color-text-light);
+    font-weight: 500;
+  }
+  
+  p, a {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  
+  .socialLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--color-bg-light);
+    color: var(--color-text);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: var(--color-primary);
+      color: white;
+      transform: translateY(-3px);
+    }
+  }
+}
+
+.contactForm {
+  padding: 2rem;
+  background: var(--color-bg-lighter);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+.formGroup {
+  position: relative;
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.formInput {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  font-size: 1rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  }
+  
+  &::placeholder {
+    color: transparent;
+  }
+  
+  &:focus + .formLabel,
+  &:not(:placeholder-shown) + .formLabel {
+    top: -10px;
+    left: 10px;
+    font-size: 0.8rem;
+    background: var(--color-bg-lighter);
+    padding: 0 5px;
+    color: var(--color-primary);
+  }
+  
+  &.textarea {
+    min-height: 150px;
+    resize: vertical;
+  }
+}
+
+.formLabel {
+  position: absolute;
+  top: 1rem;
+  left: 1.2rem;
+  font-size: 1rem;
+  color: var(--color-text-light);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  background: transparent;
+}
+
+.submitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 1rem;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(var(--color-primary-rgb), 0.2);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .sendIcon {
+    margin-left: 0.5rem;
+    font-size: 1rem;
+  }
+}
+
+.statusMessage {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  text-align: center;
+  
+  &.success {
+    background: rgba(46, 213, 115, 0.1);
+    color: #2ed573;
+    border: 1px solid rgba(46, 213, 115, 0.2);
+  }
+  
+  &.error {
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff4757;
+    border: 1px solid rgba(255, 71, 87, 0.2);
+  }
+}

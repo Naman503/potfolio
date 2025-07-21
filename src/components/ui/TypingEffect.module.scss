@@ -1,0 +1,60 @@
+@use '@/styles/variables' as *;
+
+.typingText {
+  display: flex;
+  align-items: center;
+  font-size: 1.8rem;
+  min-height: 3rem;
+  margin: 1.5rem 0 2.5rem;
+  font-weight: 500;
+  
+  .prefix {
+    color: var(--color-text-secondary);
+    margin-right: 0.5rem;
+  }
+  
+  .typingTextContent {
+    color: var(--color-primary);
+    font-weight: 600;
+    position: relative;
+    display: inline-block;
+    min-width: 1px;
+  }
+  
+  .cursor {
+    display: inline-block;
+    width: 3px;
+    height: 1.2em;
+    background: var(--color-primary);
+    margin-left: 2px;
+    animation: blink 0.7s infinite;
+    vertical-align: middle;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .typingText {
+    font-size: 1.5rem;
+    min-height: 2.5rem;
+    margin: 1rem 0 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .typingText {
+    font-size: 1.3rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    
+    .prefix {
+      margin-bottom: 0.5rem;
+    }
+  }
+}

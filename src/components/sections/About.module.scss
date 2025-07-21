@@ -1,0 +1,367 @@
+.about {
+  background-color: var(--color-bg);
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  // backdrop-filter: blur(2px);
+  // -webkit-backdrop-filter: blur(2px);
+  
+  /* Add subtle gradient overlay instead of blur */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    // background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+    will-change: transform; /* Optimize for GPU */
+  }
+  
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .sectionTitle {
+    text-align: center;
+    margin-bottom: 4rem;
+    
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+        border-radius: 2px;
+      }
+    }
+    
+    p {
+      color: var(--color-text-secondary);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    @media (max-width: 768px) {
+      margin-bottom: 3rem;
+      
+      h2 {
+        font-size: 2rem;
+      }
+    }
+  }
+  
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 4rem;
+    align-items: flex-start;
+    
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+  }
+  
+  .textContent {
+
+    h3 {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      color: var(--color-text);
+      line-height: 1.4;
+    }
+    
+    p {
+      margin-bottom: 1.25rem;
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+      
+      &:last-child {
+        margin-bottom: 2rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      h3 {
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  .textContent2 {
+    border-radius: 1rem;
+    background: transparent;
+    backdrop-filter: blur(2px);
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    // border: 1px solid var(--color-border);
+    /* Optimize for GPU */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  
+  .statItem {
+    background: var(--color-bg-secondary);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    /* Simplified transitions for better performance */
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    border: 1px solid var(--color-border);
+    /* Optimize for GPU */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    
+    &:hover {
+      transform: translateY(-3px) translateZ(0);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px); /* Float up */
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  
+  .CharacterImageWrapper {
+    position: relative;
+    margin-top: 8rem;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: transparent;
+    animation: float 4s ease-in-out infinite;
+  }
+  
+  .CharacterImageWrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    box-shadow: inset 2px 2px 21px 21px rgba(8, 75, 245, 0.381);
+    z-index: 2; /* Higher than image */
+    pointer-events: none; /* Let clicks pass through */
+
+  }
+  
+  .CharacterImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: relative;
+    z-index: 1; /* Below the ::before overlay */
+    /* Optimize for GPU */
+    opacity: 0.8;
+    
+  }
+  
+  .statNumber {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .statLabel {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+  
+  .skills {
+    background: var(--color-bg-secondary);
+    border-radius: 1rem;
+    padding: 2rem;
+    /* Reduced shadow intensity for better performance */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--color-border);
+    /* Optimize for GPU */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--color-text);
+      position: relative;
+      padding-bottom: 1rem;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+        border-radius: 2px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      padding: 1.5rem;
+      
+      h3 {
+        font-size: 1.3rem;
+      }
+    }
+  }
+  
+  .skillsContainer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .skillCategory {
+    margin-bottom: 1rem;
+  }
+  
+  .skillHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    h4 {
+      font-size: 1.1rem;
+      margin: 0 0 0 0.75rem;
+      color: var(--color-text);
+    }
+  }
+  
+  .skillIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .skillItems {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .skillItem {
+    margin-bottom: 0.5rem;
+  }
+  
+  .skillInfo {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .skillName {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    font-weight: 500;
+    
+    svg {
+      margin-right: 0.5rem;
+      color: var(--color-primary);
+      font-size: 1rem;
+    }
+  }
+  
+  .skillPercent {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+  }
+  
+  .skillBar {
+    width: 100%;
+    height: 6px;
+    background-color: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .skillLevel {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    border-radius: 3px;
+    position: relative;
+    /* Optimize animations */
+    will-change: width;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      animation: shine 2s infinite;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .content {
+      grid-template-columns: 1fr;
+    }
+    
+    .skills {
+      margin-top: 1rem;
+    }
+  }
+}
