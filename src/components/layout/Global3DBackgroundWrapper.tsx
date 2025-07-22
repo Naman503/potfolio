@@ -1,13 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
 // Dynamically import the 3D background to avoid SSR issues
-const Global3DBackground = dynamic(
-  () => import('./Global3DBackground'),
-  { ssr: false }
-);
+const Global3DBackground = dynamic(() => import("./Global3DBackground"), {
+  ssr: false,
+});
 
 const Global3DBackgroundWrapper = () => {
   const [isMounted, setIsMounted] = useState(false);
