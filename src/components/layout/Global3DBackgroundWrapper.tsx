@@ -8,7 +8,11 @@ const Global3DBackground = dynamic(() => import("./Global3DBackground"), {
   ssr: false,
 });
 
-const Global3DBackgroundWrapper = () => {
+interface Global3DBackgroundWrapperProps {
+  children?: React.ReactNode;
+}
+
+const Global3DBackgroundWrapper: React.FC<Global3DBackgroundWrapperProps> = ({ children }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   // Only render the 3D background on the client side
@@ -20,7 +24,12 @@ const Global3DBackgroundWrapper = () => {
     return null;
   }
 
-  return <Global3DBackground />;
+  return (
+    <>
+      <Global3DBackground />
+      {children}
+    </>
+  );
 };
 
 export default Global3DBackgroundWrapper;

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Global3DBackgroundWrapper from "@/components/layout/Global3DBackgroundWrapper";
+import FloatingResume from "@/components/ui/FloatingResume";
 import "./globals.scss";
 
 const inter = Inter({
@@ -53,10 +54,12 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className={`${inter.variable} font-sans`}>
+      <body className={inter.variable}>
         <ThemeProvider>
-          <Global3DBackgroundWrapper />
-          {children}
+          <Global3DBackgroundWrapper>
+            {children}
+            <FloatingResume />
+          </Global3DBackgroundWrapper>
         </ThemeProvider>
       </body>
     </html>
