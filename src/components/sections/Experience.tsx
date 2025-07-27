@@ -224,11 +224,6 @@ const ExperienceItem = ({ exp, index, isInView }: ExperienceItemProps) => {
               initial={{ opacity: 0, x: isEven ? -10 : 10 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-20% 0px -20% 0px" }}
-              transition={{
-                duration: 0.4,
-                delay: 0.3 + i * 0.1,
-                ease: [0.25, 0.1, 0.25, 1],
-              }}
             >
               {item}
             </motion.li>
@@ -244,11 +239,6 @@ const ExperienceItem = ({ exp, index, isInView }: ExperienceItemProps) => {
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 viewport={{ once: true, margin: "-20% 0px -20% 0px" }}
-                transition={{
-                  duration: 0.3,
-                  delay: 0.6 + i * 0.05,
-                  ease: [0.25, 0.1, 0.25, 1],
-                }}
               >
                 <span className={styles.tagIcon}>{icon}</span>
                 {tag}

@@ -2,35 +2,17 @@
 
 import { FC, useState, useRef, useCallback, useEffect, JSX } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import styles from "./Projects.module.scss";
-import { FiExternalLink, FiGithub, FiX, FiCode } from "react-icons/fi";
-import {
-  SiReact,
-  SiNextdotjs,
-  SiTypescript,
-  SiJavascript,
-  SiHtml5,
-  SiCss3,
-  SiSass,
-  SiTailwindcss,
-  SiNodedotjs,
-  SiExpress,
-  SiMongodb,
-  SiPostgresql,
-  SiGit,
-  SiGithub,
-  SiGitlab,
-  SiDocker,
-  SiPython,
-  SiDjango,
-  SiAmazon as SiAws,
-  SiMaterialdesign as SiMui,
-  SiBootstrap,
-  SiRedux,
-  SiFirebase,
-  SiGraphql,
-} from "react-icons/si";
+import { FiExternalLink, FiGithub, FiX } from "react-icons/fi";
+import techIcons, { FallbackIcon } from "@/utils/techIcons";
+
+// Dynamically import components to avoid SSR issues
+const ProjectCardCarousel = dynamic(() => import("../ui/ProjectCardCarousel"), {
+  ssr: false,
+});
+
+const Carousel = dynamic(() => import("../ui/Carousel"), { ssr: false });
 
 // Animation variants for Framer Motion
 const containerVariants: Variants = {
@@ -65,6 +47,8 @@ const itemVariants: Variants = {
 interface Project {
   id: string | number;
   title: string;
+  heading: string;
+  subHeading: string;
   description: string;
   image: string;
   images?: string[];
@@ -78,100 +62,79 @@ interface Project {
   role?: string;
   longDescription?: string;
   features?: string[];
+  carouselImages?: string[]; // Array of carousel image paths
 }
 
 interface ProjectsProps {
   projects: Project[];
 }
 
-const Projects: FC<ProjectsProps> = ({ projects = [] }) => {
+const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
   // State for modal
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
 
-  // Get tech icon component
-  const getTechIcon = (tech: string) => {
-    const techIcons: { [key: string]: JSX.Element } = {
-      react: <SiReact />,
-      nextjs: <SiNextdotjs />,
-      typescript: <SiTypescript />,
-      javascript: <SiJavascript />,
-      html: <SiHtml5 />,
-      css: <SiCss3 />,
-      sass: <SiSass />,
-      tailwind: <SiTailwindcss />,
-      node: <SiNodedotjs />,
-      express: <SiExpress />,
-      mongodb: <SiMongodb />,
-      postgresql: <SiPostgresql />,
-      git: <SiGit />,
-      github: <SiGithub />,
-      gitlab: <SiGitlab />,
-      docker: <SiDocker />,
-      python: <SiPython />,
-      django: <SiDjango />,
-      aws: <SiAws />,
-      materialui: <SiMui />,
-      bootstrap: <SiBootstrap />,
-      redux: <SiRedux />,
-      firebase: <SiFirebase />,
-      graphql: <SiGraphql />,
-      // Add more tech icons as needed
-    };
+  // Get carousel images for a project
+  const getCarouselImages = (project: Project): string[] => {
+    // If the project has carouselImages defined, use those
+    if (project.carouselImages && project.carouselImages.length > 0) {
+      return project.carouselImages;
+    }
 
-    return techIcons[tech.toLowerCase()] || <FiCode />;
+    // Otherwise, combine the main image with any additional images
+    const images = [project.image];
+    if (project.images && project.images.length > 0) {
+      images.push(...project.images);
+    }
+
+    return images;
+  };
+
+  // Get tech icon component (case-insensitive)
+  const getTechIcon = (tech: string): JSX.Element => {
+    // Find the correct case-sensitive key from techIcons
+    const techKey =
+      Object.keys(techIcons).find(
+        (key) => key.toLowerCase() === tech.toLowerCase()
+      ) || "";
+
+    const IconComponent = techIcons[techKey] || FallbackIcon;
+    return <IconComponent className={styles.techIcon} />;
   };
 
   // Open modal with selected project
   const openModal = useCallback((project: Project) => {
+    // Set the modal content
     setSelectedProject(project);
-    setCurrentImageIndex(0);
     setIsModalOpen(true);
+
+    // Prevent background scrolling
     document.body.style.overflow = "hidden";
   }, []);
 
   // Close modal
   const closeModal = useCallback(() => {
+    // Close the modal first
     setIsModalOpen(false);
+
+    // Re-enable background scrolling
     document.body.style.overflow = "auto";
+
+    // Clear the selected project after animation
     setTimeout(() => {
       setSelectedProject(null);
     }, 300);
   }, []);
 
-  // Define nextImage and prevImage before they're used
-  const nextImage = useCallback(() => {
-    if (!selectedProject?.images) return;
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === selectedProject.images!.length - 1 ? 0 : prevIndex + 1
-    );
-  }, [selectedProject]);
-
-  const prevImage = useCallback(() => {
-    if (!selectedProject?.images) return;
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? selectedProject.images!.length - 1 : prevIndex - 1
-    );
-  }, [selectedProject]);
-
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!isModalOpen || !selectedProject) return;
-
       if (e.key === "Escape") {
         closeModal();
-      } else if (e.key === "ArrowRight") {
-        nextImage();
-      } else if (e.key === "ArrowLeft") {
-        prevImage();
       }
     },
-    [isModalOpen, selectedProject, closeModal, nextImage, prevImage]
+    [closeModal]
   );
 
   // Handle click outside modal
@@ -184,38 +147,6 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }) => {
     [closeModal]
   );
 
-  // Handle touch events for mobile swipe
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    if (
-      touchStartX.current === null ||
-      touchEndX.current === null ||
-      !selectedProject?.images
-    )
-      return;
-
-    const diff = touchStartX.current - touchEndX.current;
-
-    if (diff > 50) {
-      // Swipe left
-      nextImage();
-    } else if (diff < -50) {
-      // Swipe right
-      prevImage();
-    }
-
-    // Reset values
-    touchStartX.current = null;
-    touchEndX.current = null;
-  }, [selectedProject, nextImage, prevImage]);
-
   // Add/remove event listeners
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => handleClickOutside(e);
@@ -223,14 +154,17 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }) => {
     if (isModalOpen) {
       document.addEventListener("keydown", handleKeyDown);
       document.addEventListener("mousedown", handleMouseDown);
+      document.body.style.overflow = "hidden";
     } else {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleMouseDown);
+      document.body.style.overflow = "auto";
     }
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleMouseDown);
+      document.body.style.overflow = "auto";
     };
   }, [isModalOpen, handleKeyDown, handleClickOutside]);
 
@@ -259,7 +193,7 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }) => {
   }, [isModalOpen, selectedProject]);
 
   // Render project cards
-  const renderProjects = () => {
+  const renderProjects = (): JSX.Element | null => {
     if (!projects || !Array.isArray(projects)) return null;
 
     return (
@@ -276,34 +210,51 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }) => {
             className={styles.projectCard}
             variants={itemVariants}
             whileHover={{ y: -5 }}
-            onClick={() => openModal(project)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openModal(project);
+            }}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => e.key === "Enter" && openModal(project)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                openModal(project);
+              }
+            }}
           >
             <div className={styles.projectImageContainer}>
-              <Image
-                src={project.image}
-                alt={project.title}
-                fill
-                className={styles.projectImage}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority={project.featured}
-              />
+              <div className={styles.projectImage}>
+                <ProjectCardCarousel
+                  images={getCarouselImages(project)}
+                  projectName={project.title}
+                />
+              </div>
               <div className={styles.projectOverlay}>
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
               </div>
             </div>
             <div className={styles.projectContent}>
-              <h3 className={styles.projectTitle}>{project.title}</h3>
-              <p className={styles.projectDescription}>{project.description}</p>
+              <h3 className={styles.projectTitle}>{project.heading}</h3>
+              <p className={styles.projectDescription}>{project.subHeading}</p>
               <div className={styles.projectTags}>
-                {project.tags.map((tag) => (
-                  <span key={tag} className={styles.tag}>
-                    {tag}
-                  </span>
-                ))}
+                {project.technologies.map((tech) => {
+                  const IconComponent = techIcons[tech] || FallbackIcon;
+
+                  return (
+                    <span key={tech} className={styles.tag}>
+                      <span
+                        style={{ paddingRight: "0.5rem", marginTop: "0.5rem" }}
+                        className={styles.techIcon}
+                      >
+                        <IconComponent />
+                      </span>
+                      <span>{tech}</span>
+                    </span>
+                  );
+                })}
               </div>
               <div className={styles.projectFooter}>
                 <div className={styles.projectLinks}>
@@ -360,11 +311,22 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }) => {
           viewport={{ once: true, margin: "0px 0px -100px 0px" }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className={styles.sectionTitle}>My Projects</h2>
-          <p className={styles.sectionSubtitle}>
-            Here are some of my recent projects. Click on any project to view
-            more details.
-          </p>
+          <div className={styles.headerContent}>
+            <div className={styles.titleWrapper}>
+              <span className={styles.sectionSubtitle}>Featured Work</span>
+              <h2 className={styles.sectionTitle}>
+                My <span className={styles.highlight}>Projects</span>
+              </h2>
+              <div className={styles.titleUnderline}></div>
+            </div>
+            <p className={styles.sectionDescription}>
+              Here are some of my recent projects. Each project represents a
+              unique challenge and solution.
+              <span className={styles.ctaText}>
+                Click on any project to view more details.
+              </span>
+            </p>
+          </div>
         </motion.div>
 
         {renderProjects()}
@@ -406,96 +368,25 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }) => {
               </div>
 
               <div className={styles.modalContent}>
-                <div
-                  className={styles.modalImageContainer}
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                >
-                  <Image
-                    src={
-                      selectedProject.images?.[currentImageIndex] ||
-                      selectedProject.image
-                    }
-                    alt={`${selectedProject.title} - Screenshot ${
-                      currentImageIndex + 1
-                    }`}
-                    fill
-                    className={styles.modalImage}
-                    priority
-                  />
-
-                  {selectedProject.images &&
-                    selectedProject.images.length > 1 && (
-                      <div className={styles.imageNavigation}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            prevImage();
-                          }}
-                          aria-label="Previous image"
-                        >
-                          &larr;
-                        </button>
-                        <span className={styles.imageCounter}>
-                          {currentImageIndex + 1} /{" "}
-                          {selectedProject.images.length}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            nextImage();
-                          }}
-                          aria-label="Next image"
-                        >
-                          &rarr;
-                        </button>
-                      </div>
-                    )}
-                </div>
-
-                <div className={styles.modalBody}>
-                  <p id="modal-description">
-                    {selectedProject.longDescription ||
-                      selectedProject.description}
-                  </p>
-
-                  {selectedProject.features &&
-                    selectedProject.features.length > 0 && (
-                      <div className={styles.featuresList}>
-                        <h3>Key Features</h3>
-                        <ul>
-                          {selectedProject.features.map((feature, index) => (
-                            <li key={index}>{feature}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                  <div className={styles.techStack}>
-                    <h3>Technologies Used</h3>
-                    <div className={styles.techIcons}>
-                      {selectedProject.technologies.map((tech) => (
-                        <div key={tech} className={styles.techIcon}>
-                          {getTechIcon(tech)}
-                          <span>{tech}</span>
-                        </div>
-                      ))}
-                    </div>
+                <div>
+                  <div className={styles.modalImageContainer}>
+                    <Carousel
+                      images={getCarouselImages(selectedProject)}
+                      projectName={selectedProject.title}
+                      autoPlay={true}
+                      interval={5000}
+                    />
                   </div>
-                </div>
-
-                <div className={styles.modalFooter}>
                   <div className={styles.projectLinks}>
                     {selectedProject.githubUrl && (
                       <a
                         href={selectedProject.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={styles.projectLink}
+                        className={`${styles.github} ${styles.projectLink}`}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <FiGithub /> View on GitHub
+                        <FiGithub /> View Code
                       </a>
                     )}
                     {(selectedProject.liveUrl || selectedProject.demoUrl) && (
@@ -505,13 +396,50 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }) => {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`${styles.projectLink} ${styles.liveLink}`}
+                        className={`${styles.live} ${styles.projectLink}`}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <FiExternalLink />
                         {selectedProject.liveUrl ? " View Live" : " View Demo"}
                       </a>
                     )}
+                  </div>
+                </div>
+
+                <div className={styles.modalDetails}>
+                  <h4>About This Project</h4>
+                  <p>
+                    {selectedProject.longDescription ||
+                      selectedProject.description}
+                  </p>
+
+                  {selectedProject.features &&
+                    selectedProject.features.length > 0 && (
+                      <div className={styles.projectFeatures}>
+                        <h5>Key Features</h5>
+                        <ul>
+                          {selectedProject.features.map((feature, index) => (
+                            <li key={index}>{feature}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                  <div className={styles.techStack}>
+                    <h5>Technologies Used</h5>
+                    <div className={styles.techTags}>
+                      {selectedProject.technologies.map((tech) => {
+                        const IconComponent = techIcons[tech] || FallbackIcon;
+                        return (
+                          <div key={tech} className={styles.techTag}>
+                            <span className={styles.techIcon}>
+                              <IconComponent />
+                            </span>
+                            <span className={styles.techName}>{tech}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
