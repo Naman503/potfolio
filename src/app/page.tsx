@@ -1,50 +1,20 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
 import styles from "./page.module.scss";
 import { projects } from "@/data/projects";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
-// Import components with dynamic imports
-const DynamicHero = dynamic(() => import("@/components/sections/Hero"), {
-  ssr: false,
-  loading: () => <LoadingSpinner />,
-});
+// Import components directly for faster loading
+import Hero from "@/components/sections/Hero";
+import About from "@/components/sections/About";
+import Projects from "@/components/sections/Projects";
+import Experience from "@/components/sections/Experience";
+import Contact from "@/components/sections/Contact";
 
-const DynamicAbout = dynamic(() => import("@/components/sections/About"), {
-  ssr: false,
-  loading: () => <LoadingSpinner />,
-});
 
-const DynamicProjects = dynamic(
-  () => import("@/components/sections/Projects"),
-  {
-    ssr: false,
-    loading: () => <LoadingSpinner />,
-  }
-);
-
-const DynamicExperience = dynamic(
-  () => import("@/components/sections/Experience"),
-  {
-    ssr: false,
-    loading: () => <LoadingSpinner />,
-  }
-);
-
-const DynamicContact = dynamic(() => import("@/components/sections/Contact"), {
-  ssr: false,
-  loading: () => <LoadingSpinner />,
-});
-
-// Loading spinner component
-const LoadingSpinner = () => (
-  <div className={styles.loadingPlaceholder}>
-    <div className={styles.loadingSpinner}></div>
-  </div>
-);
 
 // Section configuration
 interface SectionConfig {
@@ -56,27 +26,27 @@ interface SectionConfig {
 const sections: SectionConfig[] = [
   {
     id: "home",
-    component: DynamicHero,
+    component: Hero,
     threshold: 0.1,
   },
   {
     id: "about",
-    component: DynamicAbout,
+    component: About,
     threshold: 0.1,
   },
   {
     id: "projects",
-    component: () => <DynamicProjects projects={projects} />,
+    component: () => <Projects projects={projects} />,
     threshold: 0.1,
   },
   {
     id: "experience",
-    component: DynamicExperience,
+    component: Experience,
     threshold: 0.1,
   },
   {
     id: "contact",
-    component: DynamicContact,
+    component: Contact,
     threshold: 0.1,
   },
 ];
@@ -101,6 +71,46 @@ const useSectionRefs = () => {
 };
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Simple loading timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000); // 3 seconds loading
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Sections with direct component imports
+  const sections = useMemo(() => [
+    {
+      id: "home",
+      component: Hero,
+      threshold: 0.1,
+    },
+    {
+      id: "about",
+      component: About,
+      threshold: 0.1,
+    },
+    {
+      id: "projects",
+      component: () => <Projects projects={projects} />,
+      threshold: 0.1,
+    },
+    {
+      id: "experience",
+      component: Experience,
+      threshold: 0.1,
+    },
+    {
+      id: "contact",
+      component: Contact,
+      threshold: 0.1,
+    },
+  ], []);
+
   const refs = useSectionRefs();
 
   // Set the page title and description
@@ -115,32 +125,54 @@ export default function Home() {
     }
   }, []);
 
-  return (
-    <main className={styles.main}>
-      {sections.map(({ id, component: Component }) => {
-        const sectionId = id as keyof typeof refs;
-        const [ref, inView] = refs[sectionId];
+  // Handle loading completion
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
 
-        return (
-          <section
-            key={id}
-            id={id}
-            className={`${styles.section} ${id === "home" ? styles.home : ""}`}
-            ref={ref}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{
-                opacity: inView ? 1 : 0,
-                y: inView ? 0 : 20,
-              }}
-              transition={{ duration: 0.5 }}
-            >
-              {inView && <Component />}
-            </motion.div>
-          </section>
-        );
-      })}
-    </main>
+  return (
+    <>
+      <LoadingScreen 
+        isLoading={isLoading} 
+        onLoadingComplete={handleLoadingComplete}
+      />
+      
+      {!isLoading && (
+        <motion.main 
+          className={styles.main}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {sections.map(({ id, component: Component }) => {
+            const sectionId = id as keyof typeof refs;
+            const [ref, inView] = refs[sectionId];
+
+            return (
+              <section
+                key={id}
+                id={id}
+                className={`${styles.section} ${id === "home" ? styles.home : ""}`}
+                ref={ref}
+              >
+                <motion.div
+                  initial={{ opacity: 0.8, y: 5 }} // Much more subtle animation
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{ 
+                    duration: 0.2, // Very fast
+                    ease: "easeOut"
+                  }}
+                >
+                  <Component />
+                </motion.div>
+              </section>
+            );
+          })}
+        </motion.main>
+      )}
+    </>
   );
 }

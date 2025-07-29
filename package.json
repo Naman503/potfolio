@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/bundle-analyzer": "^15.4.4",
     "@react-spring/three": "^10.0.1",
     "@react-three/drei": "^10.5.1",
     "@react-three/fiber": "^9.2.0",

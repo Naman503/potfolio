@@ -231,13 +231,14 @@ const Hero = () => {
           >
             <div className={styles.profileImageWrapper}>
               <Image
-                src="/images/profile/Naman_B.jpeg"
+                src="/images/Profile/Naman_B.jpeg"
                 alt="Naman Pathak"
                 width={500}
                 height={500}
                 className={styles.profileImage}
                 priority
                 quality={100}
+                data-critical="true"
               />
             </div>
           </motion.div>

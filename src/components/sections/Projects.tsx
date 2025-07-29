@@ -1,18 +1,15 @@
 "use client";
 
-import { FC, useState, useRef, useCallback, useEffect, JSX } from "react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
-import dynamic from "next/dynamic";
+import { FC, useState, useRef, useEffect, useCallback, JSX } from "react";
+import { motion, Variants, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import styles from "./Projects.module.scss";
 import { FiExternalLink, FiGithub, FiX } from "react-icons/fi";
 import techIcons, { FallbackIcon } from "@/utils/techIcons";
 
-// Dynamically import components to avoid SSR issues
-const ProjectCardCarousel = dynamic(() => import("../ui/ProjectCardCarousel"), {
-  ssr: false,
-});
-
-const Carousel = dynamic(() => import("../ui/Carousel"), { ssr: false });
+// Import components directly for faster loading
+import ProjectCardCarousel from "../ui/ProjectCardCarousel";
+import Carousel from "../ui/Carousel";
 
 // Animation variants for Framer Motion
 const containerVariants: Variants = {
@@ -155,16 +152,19 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
       document.addEventListener("keydown", handleKeyDown);
       document.addEventListener("mousedown", handleMouseDown);
       document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
     } else {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleMouseDown);
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     }
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleMouseDown);
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     };
   }, [isModalOpen, handleKeyDown, handleClickOutside]);
 

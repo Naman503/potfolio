@@ -92,12 +92,9 @@ export default function FloatingResume() {
 
   // Handle modal close with cleanup
   const closeModal = useCallback(() => {
-    document.body.style.overflow = "auto";
-    document.body.style.position = "";
-    document.body.style.top = "";
-    document.body.style.width = "";
-    document.body.style.height = "";
-    window.scrollTo(0, parseInt(document.body.style.top || "0") * -1);
+    // Restore scrolling before closing
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
     setIsExpanded(false);
   }, []);
 
@@ -108,34 +105,25 @@ export default function FloatingResume() {
       const willExpand = !isExpanded;
 
       if (willExpand) {
-        // Save the current scroll position
-        const scrollY = window.scrollY;
-
-        // Lock the body in place
+        // Prevent scrolling on body and html elements
         document.body.style.overflow = "hidden";
-        document.body.style.position = "fixed";
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = "100%";
-        document.body.style.height = "100vh";
-
-        // Prevent touchmove events on the document
-        const preventDefault = (e: TouchEvent) => e.preventDefault();
-        document.addEventListener("touchmove", preventDefault, {
-          passive: false,
-        });
-
+        document.documentElement.style.overflow = "hidden";
+        
         setIsExpanded(true);
-
-        // Clean up event listener when component unmounts or modal closes
-        return () => {
-          document.removeEventListener("touchmove", preventDefault);
-        };
       } else {
         closeModal();
       }
     },
     [isExpanded, closeModal]
   );
+
+  // Clean up scroll locks when component unmounts
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, []);
 
   // Handle overlay click
   const handleOverlayClick = useCallback(
