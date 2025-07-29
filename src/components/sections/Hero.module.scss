@@ -57,7 +57,7 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 5%;
+  padding: 2rem 4%;
   position: relative;
   z-index: 2;
   min-height: 100vh;
@@ -138,6 +138,10 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+
+  @media (min-width: 1400px) {
+    width: 120%;
+  }
   
   @media (max-width: 768px) {
     font-size: 3.5rem;

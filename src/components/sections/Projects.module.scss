@@ -1,42 +1,7 @@
-// Variables
-:root {
-  // Card variables
-  --project-card-bg: rgba(30, 30, 46, 0.7);
-  --project-card-hover-bg: rgba(42, 42, 58, 0.8);
-  --project-card-border: rgba(255, 255, 255, 0.1);
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  --card-hover-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  
-  // Modal variables
-  --modal-overlay-bg: rgba(0, 0, 0, 0.95);
-  --modal-bg: rgba(26, 26, 46, 0.95);
-  --modal-border: 1px solid rgba(255, 255, 255, 0.1);
-  
-  // Animation variables
-  --transition-duration: 0.3s;
-  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
-  --border-radius: 16px;
-  
-  // Spacing variables
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2rem;
-  
-  // Z-index variables
-  --z-modal: 1000;
-  --z-nav-buttons: 10;
-  --z-close-button: 20;
-  
-  // Gradients
-  --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-  --gradient-overlay: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
-}
-
 // Mixins
 @mixin card-hover-effect {
   transform: translateY(-4px);
   background: var(--project-card-hover-bg);
-  // box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   
   .projectImage {
     transform: scale(1.03);
@@ -427,6 +392,7 @@
         font-weight: 400;
         display: -webkit-box;
         -webkit-line-clamp: 3;
+        line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;

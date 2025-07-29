@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import Global3DBackgroundWrapper from "@/components/layout/Global3DBackgroundWrapper";
 import FloatingResume from "@/components/ui/FloatingResume";
 import "./globals.scss";
+import "@/styles/globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,11 +25,6 @@ export const metadata: Metadata = {
     "Portfolio",
   ],
   authors: [{ name: "Naman Pathak" }],
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-  ],
-  // Viewport is now exported separately below
 };
 
 export const viewport: Viewport = {
@@ -36,8 +32,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
 };
 
@@ -54,7 +50,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className={inter.variable}>
+      <body className={inter.variable} suppressHydrationWarning>
         <ThemeProvider>
           <Global3DBackgroundWrapper>
             {children}
