@@ -191,6 +191,23 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
     preloadImages();
   }, [isModalOpen, selectedProject]);
 
+  // Preload modal images when project card mounts
+  useEffect(() => {
+    const preloadedImages = new Set<string>();
+    
+    projects.forEach((project) => {
+      project.images?.forEach((imgSrc) => {
+        if (!preloadedImages.has(imgSrc)) {
+          const img = document.createElement('img');
+          img.src = imgSrc;
+          img.loading = 'eager';
+          img.fetchPriority = 'high';
+          preloadedImages.add(imgSrc);
+        }
+      });
+    });
+  }, [projects]);
+
   // Render project cards
   const renderProjects = (): JSX.Element | null => {
     if (!projects || !Array.isArray(projects)) return null;

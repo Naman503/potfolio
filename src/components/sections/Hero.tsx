@@ -45,13 +45,6 @@ const Hero = () => {
     }, 500);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleScrollDown(e as unknown as React.MouseEvent);
-    }
-  };
-
   return (
     <section id="home" className={styles.hero} ref={ref}>
       <div className={styles.heroBackground} />
@@ -63,6 +56,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 20 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            style={{ willChange: "opacity, transform" }}
           >
             <h1 className={styles.title}>
               <motion.span
@@ -101,6 +95,7 @@ const Hero = () => {
                 duration: 0.6,
                 ease: [0.16, 1, 0.3, 1],
               }}
+              style={{ willChange: "opacity, transform" }}
             >
               <TypingEffect
                 texts={texts}
@@ -119,6 +114,7 @@ const Hero = () => {
                 duration: 0.6,
                 ease: [0.16, 1, 0.3, 1],
               }}
+              style={{ willChange: "opacity, transform" }}
             >
               I specialize in crafting digital experiences that are both
               innovative and accessible, using modern web technologies to build
@@ -134,6 +130,7 @@ const Hero = () => {
                 duration: 0.6,
                 ease: [0.16, 1, 0.3, 1],
               }}
+              style={{ willChange: "opacity, transform" }}
             >
               <motion.a
                 href="#contact"
@@ -228,6 +225,7 @@ const Hero = () => {
               ease: [0.16, 1, 0.3, 1],
               delay: 0.4,
             }}
+            style={{ willChange: "opacity, transform" }}
           >
             <div className={styles.profileImageWrapper}>
               <Image
@@ -245,47 +243,21 @@ const Hero = () => {
         </div>
       </div>
 
-      <motion.button
+      <motion.div
         className={styles.scrollDown}
         onClick={handleScrollDown}
-        onKeyDown={handleKeyDown}
-        aria-label="Scroll down to about section"
-        whileHover={{ y: 5, transition: { duration: 0.3 } }}
-        whileTap={{ scale: 0.95 }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 20 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        aria-keyshortcuts="ArrowDown"
-        title="Scroll down (or press ↓)"
+        transition={{ delay: 0.8, duration: 0.6 }}
+        aria-label="Scroll down to next section"
       >
-        <span>Scroll Down</span>
-        <motion.svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          animate={{
-            y: [0, 10, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatType: "loop",
-            ease: "easeInOut",
-          }}
-        >
-          <path
-            d="M19 14L12 21M12 21L5 14M12 21V3"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </motion.svg>
-      </motion.button>
+        <span className={styles.scrollText}>Scroll Down</span>
+        <div className={styles.scrollIndicator} />
+      </motion.div>
     </section>
   );
 };
+
+// Complete fix
 
 export default Hero;

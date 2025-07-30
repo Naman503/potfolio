@@ -164,7 +164,12 @@
   min-height: 3.5rem;
   margin-bottom: 2rem;
   position: relative;
-  display: inline-block;
+  display: flex;
+
+  @media (max-width: 1024px) {
+    align-items: center;
+    justify-content: center;
+  }
   
   @media (max-width: 768px) {
     min-height: 3rem;
@@ -195,11 +200,6 @@
   margin-left: 0.5rem;
   animation: blink 1s infinite;
   vertical-align: middle;
-  
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
   
   @media (max-width: 768px) {
     height: 2rem;
@@ -398,12 +398,9 @@
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-15px);
-  }
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-15px); }
+  60% { transform: translateY(-5px); }
 }
 
 @keyframes borderPulse {
@@ -536,55 +533,77 @@
 .scrollDown {
   position: absolute;
   bottom: 2rem;
-  left: 50%;
+  left: 45%;
   transform: translateX(-50%);
+  z-index: 10;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  text-decoration: none;
-  z-index: 10;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  opacity: 0.8;
+  gap: 8px;
+  width: max-content;
+  max-width: 100%;
   
-  &:hover {
+  .scrollText {
+    font-size: 0.75rem;
     color: var(--color-primary);
-    opacity: 1;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+  
+  .scrollIndicator {
+    width: 24px;
+    height: 40px;
+    border: 2px solid var(--color-primary);
+    border-radius: 12px;
+    position: relative;
+    opacity: 0.8;
+    transition: all 0.3s ease;
     
-    svg {
-      transform: translateY(5px);
+    &::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 8px;
+      background: var(--color-primary);
+      border-radius: 2px;
+      animation: scrollPulse 2s infinite;
     }
   }
   
-  &:focus {
-    outline: none;
-    color: var(--color-primary);
+  &:hover {
+    .scrollText {
+      opacity: 1;
+    }
+    .scrollIndicator {
+      opacity: 1;
+      transform: translateY(5px);
+      box-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.4);
+      
+      &::before {
+        animation-duration: 1.5s;
+      }
+    }
   }
   
-  span {
-    margin-bottom: 0.5rem;
-  }
-  
-  svg {
-    transition: transform 0.3s ease;
+  @media (max-width: 768px) {
+    bottom: 1.5rem;
   }
 }
 
-// Animation for scroll down arrow
+@keyframes scrollPulse {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 0.5; transform: translateX(-50%) translateY(8px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
 }
 
 // Responsive adjustments
