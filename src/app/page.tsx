@@ -23,34 +23,6 @@ interface SectionConfig {
   threshold: number;
 }
 
-const sections: SectionConfig[] = [
-  {
-    id: "home",
-    component: Hero,
-    threshold: 0.1,
-  },
-  {
-    id: "about",
-    component: About,
-    threshold: 0.1,
-  },
-  {
-    id: "projects",
-    component: () => <Projects projects={projects} />,
-    threshold: 0.1,
-  },
-  {
-    id: "experience",
-    component: Experience,
-    threshold: 0.1,
-  },
-  {
-    id: "contact",
-    component: Contact,
-    threshold: 0.1,
-  },
-];
-
 const useSectionRefs = () => {
   const homeRef = useInView({ triggerOnce: true, threshold: 0.1 });
   const aboutRef = useInView({ triggerOnce: true, threshold: 0.1 });
