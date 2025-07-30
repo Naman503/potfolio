@@ -16,13 +16,6 @@ import Contact from "@/components/sections/Contact";
 
 
 
-// Section configuration
-interface SectionConfig {
-  id: string;
-  component: React.ComponentType;
-  threshold: number;
-}
-
 const useSectionRefs = () => {
   const homeRef = useInView({ triggerOnce: true, threshold: 0.1 });
   const aboutRef = useInView({ triggerOnce: true, threshold: 0.1 });
