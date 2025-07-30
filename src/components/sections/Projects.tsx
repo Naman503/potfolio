@@ -2,7 +2,6 @@
 
 import { FC, useState, useRef, useEffect, useCallback, JSX } from "react";
 import { motion, Variants, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import styles from "./Projects.module.scss";
 import { FiExternalLink, FiGithub, FiX } from "react-icons/fi";
 import techIcons, { FallbackIcon } from "@/utils/techIcons";

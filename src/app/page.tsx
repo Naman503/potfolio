@@ -82,36 +82,39 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Sections with direct component imports
-  const sections = useMemo(() => [
-    {
-      id: "home",
-      component: Hero,
-      threshold: 0.1,
-    },
-    {
-      id: "about",
-      component: About,
-      threshold: 0.1,
-    },
-    {
-      id: "projects",
-      component: () => <Projects projects={projects} />,
-      threshold: 0.1,
-    },
-    {
-      id: "experience",
-      component: Experience,
-      threshold: 0.1,
-    },
-    {
-      id: "contact",
-      component: Contact,
-      threshold: 0.1,
-    },
-  ], []);
-
   const refs = useSectionRefs();
+
+  // Sections with direct component imports
+  const sections = useMemo(
+    () => [
+      {
+        id: "home",
+        component: Hero,
+        threshold: 0.1,
+      },
+      {
+        id: "about",
+        component: About,
+        threshold: 0.1,
+      },
+      {
+        id: "projects",
+        component: () => <Projects projects={projects} />, // projects prop if needed
+        threshold: 0.1,
+      },
+      {
+        id: "experience",
+        component: Experience,
+        threshold: 0.1,
+      },
+      {
+        id: "contact",
+        component: Contact,
+        threshold: 0.1,
+      },
+    ],
+    []
+  );
 
   // Set the page title and description
   useEffect(() => {
@@ -146,14 +149,14 @@ export default function Home() {
         >
           {sections.map(({ id, component: Component }) => {
             const sectionId = id as keyof typeof refs;
-            const [ref, inView] = refs[sectionId];
+            const [sectionRef] = refs[sectionId];
 
             return (
               <section
                 key={id}
                 id={id}
                 className={`${styles.section} ${id === "home" ? styles.home : ""}`}
-                ref={ref}
+                ref={sectionRef}
               >
                 <motion.div
                   initial={{ opacity: 0.8, y: 5 }} // Much more subtle animation

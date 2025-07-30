@@ -369,13 +369,18 @@ export default function FloatingResume() {
           >
             <iframe
               src={`${pdfUrl}#view=fitH`}
+              scrolling="no"
               className={styles.pdfIframe}
               style={{
-                width: "100%",
+                width: "calc(100% + 20px)",
                 height: "100%",
                 border: "none",
                 background: "transparent",
                 pointerEvents: "none",
+                overflow: "hidden",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                marginRight: "-20px"
               }}
               title="Resume Preview"
               loading="lazy"
