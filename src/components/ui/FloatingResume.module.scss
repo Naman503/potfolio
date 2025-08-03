@@ -453,6 +453,11 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
+
+    @media (max-width: 468px) {
+      width: 36px;
+      height: 28px;
+    }
     
     &:hover {
       background: rgba(255, 255, 255, 0.2);
