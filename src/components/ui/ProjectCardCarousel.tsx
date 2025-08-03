@@ -45,20 +45,19 @@ const ProjectCardCarousel: FC<ProjectCardCarouselProps> = ({
       <Slider {...settings}>
         {images.map((image, index) => (
           <div key={`${projectName}-${index}`} className="carousel-slide">
-            <div className="image-wrapper">
+            {/* <div className="image-wrapper"> */}
               <Image
                 src={image}
                 alt={`${projectName} - Slide ${index + 1}`}
                 fill
                 style={{
                   objectFit: "contain",
-                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.4)",
                 }}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 priority={index === 0}
                 quality={80}
               />
-            </div>
+            {/* </div> */}
           </div>
         ))}
       </Slider>

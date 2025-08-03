@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Global3DBackgroundWrapper from "@/components/layout/Global3DBackgroundWrapper";
 import FloatingResume from "@/components/ui/FloatingResume";
+import PerformanceMonitor from "@/components/performance/PerformanceMonitor";
 import "./globals.scss";
 import "@/styles/globals.css";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={inter.variable} suppressHydrationWarning>
+        <PerformanceMonitor />
         <ThemeProvider>
           <Global3DBackgroundWrapper>
             {children}

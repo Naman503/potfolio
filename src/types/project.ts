@@ -6,6 +6,8 @@ export interface Project {
   description: string;
   image: string;
   images?: string[];
+  carouselImages?: string[];
+  logo?: string;
   tags: string[];
   githubUrl?: string;
   liveUrl?: string;
@@ -16,5 +18,4 @@ export interface Project {
   role?: string;
   longDescription?: string;
   features?: string[];
-  carouselImages?: string[];
 }

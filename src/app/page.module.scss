@@ -39,6 +39,10 @@
     padding: 4rem 0;
   }
   
+  @media (max-width: 480px) {
+    padding: 0;
+  }
+  
   &::before {
     content: '';
     position: absolute;
@@ -96,7 +100,13 @@
 
 @media (max-width: 768px) {
   .section {
-    padding: 3rem 0;
+    padding: 2rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 0;
   }
 }
 
