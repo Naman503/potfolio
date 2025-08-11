@@ -2,24 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import dynamic from 'next/dynamic';
+import Player from 'lottie-react';
 import styles from "./LoadingScreen.module.scss";
-
-// Dynamically import the Lottie player to avoid SSR and reduce initial load
-const DotLottieReact = dynamic(
-  () => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact),
-  { 
-    ssr: false,
-    loading: () => <div className={styles.fallbackAnimation} />
-  }
-) as React.ComponentType<{
-  src: string;
-  loop: boolean;
-  autoplay: boolean;
-  style: React.CSSProperties;
-  onLoad?: () => void;
-  onError?: () => void;
-}>;
+import astronautAnimation from '../../../public/Astronaut.json';
 
 interface LoadingScreenProps {
   isLoading: boolean;
@@ -28,77 +13,69 @@ interface LoadingScreenProps {
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading, onLoadingComplete }) => {
   const [progress, setProgress] = useState(0);
-  const [animationLoaded, setAnimationLoaded] = useState(false);
   const [animationError, setAnimationError] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-  // Simple progress animation
+  // Start with immediate partial progress when loading begins
   useEffect(() => {
     if (isLoading) {
+      setProgress(20); // Show immediate progress
+      
       const interval = setInterval(() => {
         setProgress((prev) => {
-          // Don't exceed 50% until images are loaded
-          const maxProgress = imagesLoaded ? 100 : 50;
-          if (prev >= maxProgress) {
+          const targetProgress = imagesLoaded ? 100 : 80;
+          if (prev >= targetProgress) {
             clearInterval(interval);
-            return maxProgress;
+            return targetProgress;
           }
-          return prev + 2;
+          return prev + 10; // Fast increments
         });
-      }, 60);
+      }, 100); // Frequent updates
 
       return () => clearInterval(interval);
     }
   }, [isLoading, imagesLoaded]);
 
-  // Preload project images
+  // Start asset preloading immediately
   useEffect(() => {
-    if (isLoading) {
-      const preloadImages = async () => {
-        try {
-          const { projects } = await import('@/data/projects');
-          const imageUrls = projects.flatMap(project => [
-            project.image,
-            ...(project.carouselImages || []),
-            ...(project.images || [])
-          ].filter(Boolean));
-          
-          // Track loaded images for progress
-          let loadedCount = 0;
-          const totalImages = imageUrls.length;
-          
-          await Promise.all(
-            imageUrls.map(url => {
-              return new Promise((resolve) => {
-                const img = new Image();
-                img.src = url;
-                img.onload = () => {
-                  loadedCount++;
-                  // Update progress based on image loading
-                  setProgress(Math.min(100, Math.floor((loadedCount / totalImages) * 50) + 50));
-                  resolve(null);
-                };
-                img.onerror = resolve; // Continue even if some images fail
-              });
-            })
-          );
-          setImagesLoaded(true);
-        } catch (error) {
-          console.error('Error preloading images:', error);
-          setImagesLoaded(true); // Continue anyway
-        }
-      };
-      
-      preloadImages();
-    }
-  }, [isLoading]);
+    const preloadAssets = async () => {
+      try {
+        // Preload critical assets
+        const { projects } = await import('@/data/projects');
+        const imageUrls = projects.flatMap(project => [
+          project.image,
+          ...(project.carouselImages || []),
+          ...(project.images || [])
+        ].filter(Boolean));
+        
+        await Promise.all(
+          imageUrls.map(url => {
+            return new Promise((resolve) => {
+              const img = new Image();
+              img.src = url;
+              img.onload = resolve;
+              img.onerror = resolve; // Continue even if some images fail
+            });
+          })
+        );
+        setImagesLoaded(true);
+        setProgress(100); // Jump to 100% when done
+      } catch (error) {
+        console.error('Preloading failed:', error);
+        setImagesLoaded(true);
+        setProgress(100); // Continue anyway
+      }
+    };
 
-  // Complete loading when both animation and images are ready
+    preloadAssets();
+  }, []);
+
+  // Transition immediately when progress reaches 100%
   useEffect(() => {
-    if ((animationLoaded || animationError) && imagesLoaded && progress >= 100) {
+    if (progress >= 100) {
       onLoadingComplete();
     }
-  }, [animationLoaded, animationError, imagesLoaded, progress, onLoadingComplete]);
+  }, [progress, onLoadingComplete]);
 
   return (
     <AnimatePresence>
@@ -118,17 +95,14 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading, onLoadingCompl
               transition={{ duration: 0.5 }}
             >
               {!animationError ? (
-                <DotLottieReact
-                  src="https://lottie.host/d04b9411-97bd-4cf1-b997-9cfe38ff9cc9/m428irsJF8.lottie"
+                <Player
+                  animationData={astronautAnimation}
                   loop={true}
                   autoplay={true}
                   style={{ width: "100%", height: "100%" }}
-                  onLoad={() => setAnimationLoaded(true)}
                   onError={() => setAnimationError(true)}
                 />
-              ) : (
-                <div className={styles.fallbackAnimation} />
-              )}
+              ) : null}
             </motion.div>
 
             {/* Loading Text */}
@@ -159,7 +133,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading, onLoadingCompl
                 <motion.div
                   className={styles.progressFill}
                   style={{ width: `${progress}%` }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  transition={{ duration: 0.1, ease: "linear" }}
                 />
               </div>
               <span className={styles.progressText}>{Math.round(progress)}%</span>
