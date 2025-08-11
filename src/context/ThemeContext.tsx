@@ -6,13 +6,12 @@ type Theme = 'light' | 'dark';
 
 type ThemeContextType = {
   theme: Theme;
-  toggleTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   // Initialize theme from localStorage or system preference
@@ -33,8 +32,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!mounted) return;
     
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
     
     // Add/remove dark class for compatibility with other libraries
     if (theme === 'dark') {
@@ -44,17 +43,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [theme, mounted]);
 
-  const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
-
   if (!mounted) {
     // Return a blank div with the background color to prevent theme flash
     return <div style={{ visibility: 'hidden' }}>{children}</div>;
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme }}>
       <div className={`theme-${theme} theme-transition`}>
         {children}
       </div>
@@ -62,7 +57,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useTheme = (): ThemeContextType => {
+export const useTheme = (): { theme: Theme } => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');

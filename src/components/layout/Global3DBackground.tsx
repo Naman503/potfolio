@@ -6,14 +6,8 @@ import { OrbitControls, PerspectiveCamera, Stars } from "@react-three/drei";
 import * as THREE from "three";
 import GlobalFloatingElements from "@/components/ui/GlobalFloatingElements";
 
-interface ViewportSize {
-  width: number;
-  height: number;
-  dpr: number;
-}
-
 // 3D Scene Component - Memoized to prevent re-renders
-const ThreeScene = memo(({ viewport }: { viewport: ViewportSize }) => {
+const ThreeScene = memo(() => {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
   // Set initial camera position
@@ -81,7 +75,13 @@ const ThreeScene = memo(({ viewport }: { viewport: ViewportSize }) => {
       />
 
       {/* Main 3D elements */}
-      <GlobalFloatingElements viewport={viewport} />
+      <GlobalFloatingElements 
+        viewport={{ 
+          width: window.innerWidth, 
+          height: window.innerHeight, 
+          dpr: Math.min(window.devicePixelRatio, 2) 
+        }} 
+      />
 
       {/* Camera controls */}
       <OrbitControls
@@ -102,41 +102,25 @@ ThreeScene.displayName = "ThreeScene";
 
 const Global3DBackground = () => {
   const [mounted, setMounted] = useState(false);
-  const [dimensions, setDimensions] = useState<ViewportSize>({
-    width: 0,
-    height: 0,
-    dpr: 1,
-  });
+  const [dpr, setDpr] = useState(1);
 
-  // Set initial dimensions and handle resize
   useEffect(() => {
-    const updateDimensions = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-        dpr: Math.min(window.devicePixelRatio, 2),
-      });
+    // Only update DPR which is critical for performance
+    const updateDpr = () => {
+      setDpr(Math.min(window.devicePixelRatio, 2));
     };
 
-    // Initialize dimensions
-    updateDimensions();
+    updateDpr();
     setMounted(true);
 
-    // Handle resize with debounce
-    let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(updateDimensions, 100);
+      updateDpr();
     };
 
     window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearTimeout(resizeTimeout);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Don't render on server-side or if not mounted
   if (typeof window === "undefined" || !mounted) {
     return null;
   }
@@ -150,18 +134,15 @@ const Global3DBackground = () => {
           left: 0,
           width: "100vw",
           height: "100vh",
-          zIndex: 0, // Changed from -1 to 0 to ensure proper layering
+          zIndex: 0,
           pointerEvents: "none",
           opacity: 0.8,
-          transition: "opacity 0.5s ease-in-out",
         }}
-        dpr={dimensions.dpr}
+        dpr={dpr}
         gl={{
           antialias: true,
           alpha: true,
           powerPreference: "high-performance",
-          stencil: false,
-          depth: true,
         }}
         camera={{
           position: [0, 0, 12],
@@ -169,15 +150,12 @@ const Global3DBackground = () => {
           near: 0.1,
           far: 1000,
         }}
-        onCreated={({ gl, scene }) => {
+        onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 0);
-          gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-          // Set up fog for depth
-          scene.fog = new THREE.FogExp2(0x000000, 0.01);
+          gl.setPixelRatio(dpr);
         }}
       >
-        <ThreeScene viewport={dimensions} />
+        <ThreeScene />
       </Canvas>
     </div>
   );
