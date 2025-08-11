@@ -1,12 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTheme } from '@/context/ThemeContext';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import styles from './ThemeToggle.module.scss';
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch
@@ -29,15 +27,11 @@ const ThemeToggle = () => {
   return (
     <button 
       className={styles.themeToggle} 
-      onClick={toggleTheme}
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      aria-label="Dark mode"
       aria-live="polite"
+      disabled
     >
-      {theme === 'light' ? (
-        <FiMoon className={styles.icon} />
-      ) : (
-        <FiSun className={styles.icon} />
-      )}
+      <FiMoon className={styles.icon} />
     </button>
   );
 };

@@ -19,6 +19,7 @@
     "@types/react-slick": "^0.23.13",
     "compression": "^1.8.1",
     "framer-motion": "^12.23.0",
+    "lottie-react": "^2.4.1",
     "next": "15.3.5",
     "next-compose-plugins": "^2.2.1",
     "next-optimized-images": "^2.6.2",
