@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import { motion } from "framer-motion";
 import styles from "./page.module.scss";
 import { projects } from "@/data/projects";
 import LoadingScreen from "@/components/ui/LoadingScreen";

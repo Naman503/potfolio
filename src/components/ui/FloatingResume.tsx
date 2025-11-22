@@ -147,6 +147,19 @@ export default function FloatingResume() {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isExpanded, closeModal]);
 
+  // Get viewport bounds considering scroll position
+  const getViewportBounds = useCallback(() => {
+    if (!boxRef.current) return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+
+    const boxRect = boxRef.current.getBoundingClientRect();
+    return {
+      minX: 0,
+      maxX: window.innerWidth - boxRect.width,
+      minY: 0,
+      maxY: window.innerHeight - boxRect.height,
+    };
+  }, []);
+
   // Initialize client-side state and set up window resize listener
   useEffect(() => {
     setIsClient(true);
@@ -164,20 +177,7 @@ export default function FloatingResume() {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameRef.current);
     };
-  }, []);
-
-  // Get viewport bounds considering scroll position
-  const getViewportBounds = useCallback(() => {
-    if (!boxRef.current) return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
-
-    const boxRect = boxRef.current.getBoundingClientRect();
-    return {
-      minX: 0,
-      maxX: window.innerWidth - boxRect.width,
-      minY: 0,
-      maxY: window.innerHeight - boxRect.height,
-    };
-  }, []);
+  }, [getViewportBounds]);
 
   // Animation loop for floating effect with physics
   useEffect(() => {
