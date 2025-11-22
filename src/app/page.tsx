@@ -82,6 +82,9 @@ export default function Home() {
         "Personal portfolio of Naman Pathak, a Full-Stack Developer specializing in React, React Native, and Node.js."
       );
     }
+    
+    // React-loaded class is added by LoadingScreen component
+    // No need to remove it here
   }, []);
 
   // Handle loading completion

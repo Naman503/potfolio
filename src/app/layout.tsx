@@ -47,6 +47,27 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* Show loading screen background immediately before React hydrates */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Show loading screen background immediately - same as LoadingScreen component */
+            body:not(.react-loaded)::before {
+              content: '';
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100vw;
+              height: 100vh;
+              background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+              z-index: 99999;
+              pointer-events: none;
+            }
+            /* Remove when React component loads */
+            body.react-loaded::before {
+              display: none;
+            }
+          `
+        }} />
       </head>
       <body className={inter.variable} suppressHydrationWarning>
         <PerformanceMonitor />
