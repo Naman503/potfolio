@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Player from 'lottie-react';
 import styles from "./LoadingScreen.module.scss";
 import astronautAnimation from '../../../public/Astronaut.json';
+import { imagePreloader } from "@/utils/imagePreloader";
 
 interface LoadingScreenProps {
   isLoading: boolean;
@@ -16,66 +17,75 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading, onLoadingCompl
   const [animationError, setAnimationError] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-  // Start with immediate partial progress when loading begins
+  // Start asset preloading immediately when component mounts
   useEffect(() => {
-    if (isLoading) {
-      setProgress(20); // Show immediate progress
-      
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          const targetProgress = imagesLoaded ? 100 : 80;
-          if (prev >= targetProgress) {
-            clearInterval(interval);
-            return targetProgress;
-          }
-          return prev + 10; // Fast increments
-        });
-      }, 100); // Frequent updates
-
-      return () => clearInterval(interval);
-    }
-  }, [isLoading, imagesLoaded]);
-
-  // Start asset preloading immediately
-  useEffect(() => {
+    let isMounted = true;
+    
     const preloadAssets = async () => {
       try {
-        // Preload critical assets
-        const { projects } = await import('@/data/projects');
-        const imageUrls = projects.flatMap(project => [
-          project.image,
-          ...(project.carouselImages || []),
-          ...(project.images || [])
-        ].filter(Boolean));
-        
-        await Promise.all(
-          imageUrls.map(url => {
-            return new Promise((resolve) => {
-              const img = new Image();
-              img.src = url;
-              img.onload = resolve;
-              img.onerror = resolve; // Continue even if some images fail
-            });
-          })
-        );
-        setImagesLoaded(true);
-        setProgress(100); // Jump to 100% when done
+        // Start with minimal progress
+        if (isMounted) {
+          setProgress(5);
+        }
+
+        // Preload all portfolio images with progress tracking
+        await imagePreloader.preloadAllPortfolioImages((progressData) => {
+          if (isMounted) {
+            // Update progress: 5% initial + 90% for images + 5% buffer
+            const imageProgress = Math.min(90, (progressData.loaded / progressData.total) * 90);
+            setProgress(5 + imageProgress);
+          }
+        });
+
+        // Mark as loaded and complete
+        if (isMounted) {
+          setImagesLoaded(true);
+          setProgress(100);
+          
+          // Small delay to show 100% before completing
+          setTimeout(() => {
+            if (isMounted) {
+              onLoadingComplete();
+            }
+          }, 300);
+        }
       } catch (error) {
         console.error('Preloading failed:', error);
-        setImagesLoaded(true);
-        setProgress(100); // Continue anyway
+        if (isMounted) {
+          setImagesLoaded(true);
+          setProgress(100);
+          // Still complete loading even if there's an error
+          setTimeout(() => {
+            if (isMounted) {
+              onLoadingComplete();
+            }
+          }, 300);
+        }
       }
     };
 
     preloadAssets();
-  }, []);
 
-  // Transition immediately when progress reaches 100%
+    return () => {
+      isMounted = false;
+    };
+  }, [onLoadingComplete]);
+
+  // Fallback: Complete loading after maximum 8 seconds to prevent infinite loading
   useEffect(() => {
-    if (progress >= 100) {
-      onLoadingComplete();
-    }
-  }, [progress, onLoadingComplete]);
+    const fallbackTimer = setTimeout(() => {
+      if (!imagesLoaded) {
+        console.warn('Loading timeout reached, completing anyway');
+        setProgress(100);
+        setImagesLoaded(true);
+        setTimeout(() => {
+          onLoadingComplete();
+        }, 300);
+      }
+    }, 8000); // 8 seconds maximum
+
+    return () => clearTimeout(fallbackTimer);
+  }, [imagesLoaded, onLoadingComplete]);
 
   return (
     <AnimatePresence>
@@ -116,7 +126,9 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading, onLoadingCompl
               }}
             >
               <h2>Loading Portfolio</h2>
-              <p>Preparing the experience...</p>
+              <p>
+                Preparing the experience...
+              </p>
             </motion.div>
 
             {/* Progress Bar */}

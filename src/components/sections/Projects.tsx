@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useRef, useEffect, useCallback, JSX } from "react";
+import { FC, useState, useRef, useEffect, useCallback, JSX, useMemo } from "react";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import styles from "./Projects.module.scss";
 import { FiExternalLink, FiGithub, FiX } from "react-icons/fi";
@@ -70,9 +70,11 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const isClosingRef = useRef(false); // Prevent multiple close calls
+  const isOpeningRef = useRef(false); // Prevent multiple open calls
 
   // Get carousel images for a project
-  const getCarouselImages = (project: Project): string[] => {
+  const getCarouselImages = useCallback((project: Project): string[] => {
     // If the project has carouselImages defined, use those
     if (project.carouselImages && project.carouselImages.length > 0) {
       return project.carouselImages;
@@ -85,7 +87,12 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
     }
 
     return images;
-  };
+  }, []);
+
+  // Memoize carousel images to prevent re-renders
+  const carouselImages = useMemo(() => {
+    return selectedProject ? getCarouselImages(selectedProject) : [];
+  }, [selectedProject, getCarouselImages]);
 
   // Get tech icon component (case-insensitive)
   const getTechIcon = (tech: string): JSX.Element => {
@@ -99,114 +106,91 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
     return <IconComponent className={styles.techIcon} />;
   };
 
-  // Open modal with selected project
+  // Open modal with selected project - optimized to prevent flickering
   const openModal = useCallback((project: Project) => {
-    // Set the modal content
+    // Prevent opening if already opening, closing, or already open with same project
+    if (isOpeningRef.current || isClosingRef.current || (isModalOpen && selectedProject?.id === project.id)) {
+      return;
+    }
+    
+    // Set opening flag
+    isOpeningRef.current = true;
+    
+    // Reset closing flag
+    isClosingRef.current = false;
+    
+    // Set both states together - React 18+ batches these automatically
     setSelectedProject(project);
     setIsModalOpen(true);
-
-    // Prevent background scrolling
-    document.body.style.overflow = "hidden";
-  }, []);
+    
+    // Reset opening flag after a short delay
+    setTimeout(() => {
+      isOpeningRef.current = false;
+    }, 100);
+  }, [isModalOpen, selectedProject]);
 
   // Close modal
-  const closeModal = useCallback(() => {
+  const closeModal = useCallback((e?: React.MouseEvent | React.KeyboardEvent) => {
+    // Prevent event bubbling if called from button
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    
+    // Prevent multiple close calls
+    if (isClosingRef.current || !isModalOpen) {
+      return;
+    }
+    
+    // Set closing flag
+    isClosingRef.current = true;
+    
     // Close the modal first
     setIsModalOpen(false);
 
-    // Re-enable background scrolling
-    document.body.style.overflow = "auto";
+    // Re-enable background scrolling immediately
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
 
-    // Clear the selected project after animation
+    // Clear the selected project after animation completes
     setTimeout(() => {
       setSelectedProject(null);
-    }, 300);
-  }, []);
+      isClosingRef.current = false;
+    }, 250); // Slightly longer than animation duration (200ms)
+  }, [isModalOpen]);
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && isModalOpen && !isClosingRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
         closeModal();
       }
     },
-    [closeModal]
-  );
-
-  // Handle click outside modal
-  const handleClickOutside = useCallback(
-    (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        closeModal();
-      }
-    },
-    [closeModal]
+    [closeModal, isModalOpen]
   );
 
   // Add/remove event listeners
   useEffect(() => {
-    const handleMouseDown = (e: MouseEvent) => handleClickOutside(e);
-
     if (isModalOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      document.addEventListener("mousedown", handleMouseDown);
+      // Prevent background scrolling
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
-    } else {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleMouseDown);
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
+      
+      // Add keyboard listener
+      document.addEventListener("keydown", handleKeyDown);
+      
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+      };
     }
+  }, [isModalOpen, handleKeyDown]);
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleMouseDown);
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-    };
-  }, [isModalOpen, handleKeyDown, handleClickOutside]);
-
-  // Preload images when modal opens
-  useEffect(() => {
-    if (!isModalOpen || !selectedProject?.images) return;
-
-    const preloadImages = async () => {
-      try {
-        await Promise.all(
-          (selectedProject.images || []).map((src) => {
-            return new Promise<void>((resolve, reject) => {
-              const img = new window.Image();
-              img.src = src;
-              img.onload = () => resolve();
-              img.onerror = reject;
-            });
-          })
-        );
-      } catch (error) {
-        console.error("Error preloading images:", error);
-      }
-    };
-
-    preloadImages();
-  }, [isModalOpen, selectedProject]);
-
-  // Preload modal images when project card mounts
-  useEffect(() => {
-    const preloadedImages = new Set<string>();
-    
-    projects.forEach((project) => {
-      project.images?.forEach((imgSrc) => {
-        if (!preloadedImages.has(imgSrc)) {
-          const img = document.createElement('img');
-          img.src = imgSrc;
-          img.loading = 'eager';
-          img.fetchPriority = 'high';
-          preloadedImages.add(imgSrc);
-        }
-      });
-    });
-  }, [projects]);
+  // Images are already preloaded during the loading screen, so no need to preload again
+  // This reduces redundant network requests and improves performance
 
   // Render project cards
   const renderProjects = (): JSX.Element | null => {
@@ -229,14 +213,21 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              openModal(project);
+              // Prevent opening if modal is already open, closing, or opening
+              if (!isModalOpen && !isClosingRef.current && !isOpeningRef.current) {
+                openModal(project);
+              }
             }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                openModal(project);
+                e.stopPropagation();
+                // Prevent opening if modal is already open, closing, or opening
+                if (!isModalOpen && !isClosingRef.current && !isOpeningRef.current) {
+                  openModal(project);
+                }
               }
             }}
           >
@@ -325,7 +316,7 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
           <div className={styles.headerContent}>
             <div className={styles.titleWrapper}>
@@ -349,26 +340,38 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
       </div>
 
       <AnimatePresence>
-        {isModalOpen && selectedProject && (
+        {isModalOpen && selectedProject ? (
           <motion.div
-            className={`${styles.modalOverlay} ${
-              isModalOpen ? styles.active : ""
-            }`}
+            key={`modal-overlay-${selectedProject.id}`}
+            className={`${styles.modalOverlay} ${styles.active}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={closeModal}
+            transition={{ duration: 0.2 }}
+            onClick={(e) => {
+              // Only close if clicking directly on overlay, not on modal content
+              if (e.target === e.currentTarget) {
+                closeModal(e);
+              }
+            }}
             role="dialog"
             aria-modal="true"
           >
             <motion.div
+              key={`modal-content-${selectedProject.id}`}
+              ref={modalRef}
               className={styles.modal}
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              onClick={(e) => e.stopPropagation()}
+              initial={{ y: 10, opacity: 0, scale: 0.98 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 10, opacity: 0, scale: 0.98 }}
+              transition={{ 
+                duration: 0.2, 
+                ease: [0.16, 1, 0.3, 1]
+              }}
+              onClick={(e) => {
+                // Prevent clicks inside modal from closing it
+                e.stopPropagation();
+              }}
             >
               <div className={styles.modalHeader}>
                 <h2 id="modal-title" className={styles.modalTitle}>
@@ -376,8 +379,12 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
                 </h2>
                 <button
                   className={styles.closeButton}
-                  onClick={closeModal}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    closeModal(e);
+                  }}
                   aria-label="Close modal"
+                  type="button"
                 >
                   <FiX />
                 </button>
@@ -387,7 +394,7 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
                 <div>
                   <div className={styles.modalImageContainer}>
                     <Carousel
-                      images={getCarouselImages(selectedProject)}
+                      images={carouselImages}
                       projectName={selectedProject.title}
                       autoPlay={true}
                       interval={5000}
@@ -461,7 +468,7 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
               </div>
             </motion.div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </section>
   );

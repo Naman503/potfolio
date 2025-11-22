@@ -53,9 +53,9 @@ const ProjectCardCarousel: FC<ProjectCardCarouselProps> = ({
                 style={{
                   objectFit: "contain",
                 }}
-                // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 priority={index === 0}
-                quality={80}
+                unoptimized={true}
+                quality={100}
               />
             {/* </div> */}
           </div>

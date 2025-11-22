@@ -77,6 +77,8 @@ const Carousel: FC<CarouselProps> = ({
                 style={{ objectFit: "contain" }}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 priority={currentIndex === 0}
+                unoptimized={true}
+                quality={100}
               />
             </div>
           </motion.div>

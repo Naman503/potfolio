@@ -37,15 +37,6 @@ const useSectionRefs = () => {
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Simple loading timer
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000); // 3 seconds loading
-    
-    return () => clearTimeout(timer);
-  }, []);
 
   const refs = useSectionRefs();
 
@@ -106,12 +97,7 @@ export default function Home() {
       />
       
       {!isLoading && (
-        <motion.main 
-          className={styles.main}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
+        <main className={styles.main}>
           {sections.map(({ id, component: Component }) => {
             const sectionId = id as keyof typeof refs;
             const [sectionRef] = refs[sectionId];
@@ -123,23 +109,11 @@ export default function Home() {
                 className={`${styles.section} ${id === "home" ? styles.home : ""}`}
                 ref={sectionRef}
               >
-                <motion.div
-                  initial={{ opacity: 0.8, y: 5 }} // Much more subtle animation
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  transition={{ 
-                    duration: 0.2, // Very fast
-                    ease: "easeOut"
-                  }}
-                >
-                  <Component />
-                </motion.div>
+                <Component />
               </section>
             );
           })}
-        </motion.main>
+        </main>
       )}
     </>
   );
