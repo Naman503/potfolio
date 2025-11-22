@@ -74,7 +74,7 @@ const About = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
           <h2>About Me</h2>
           <p>Get to know more about my skills and experience</p>
@@ -83,17 +83,17 @@ const About = () => {
         <div className={styles.content}>
           <motion.div
             className={styles.textContent}
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <motion.div
               className={styles.textContent2}
-              initial={{ opacity: 0, x: -30 }}
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
             >
               <h3>Full-Stack Developer with a Passion for Mobile</h3>
             <p>
@@ -159,7 +159,7 @@ const About = () => {
 
             <div className={styles.CharacterImageWrapper}>
               <Image
-                src="/images/profile/charactor_Image.png"
+                src="/images/Profile/charactor_Image.png"
                 alt="Character Image"
                 width={500}
                 height={500}
@@ -172,10 +172,10 @@ const About = () => {
 
           <motion.div
             className={styles.skills}
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <h3>My Skills</h3>
 

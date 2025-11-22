@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
 import TypingEffect from "@/components/ui/TypingEffect";
 import Image from "next/image";
 import styles from "./Hero.module.scss";
@@ -16,12 +15,6 @@ const scrollToSection = (id: string) => {
 };
 
 const Hero = () => {
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-    rootMargin: "-50px 0px",
-  });
-
   const texts = useMemo(
     () => [
       "Full-Stack Developer",
@@ -46,7 +39,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className={styles.hero} ref={ref}>
+    <section id="home" className={styles.hero}>
       <div className={styles.heroBackground} />
 
       <div className={styles.container}>
@@ -54,15 +47,16 @@ const Hero = () => {
           <motion.div
             className={styles.textContainer}
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            style={{ willChange: "opacity, transform" }}
           >
             <h1 className={styles.title}>
               <motion.span
                 className={styles.highlight}
                 initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 transition={{
                   delay: 0.2,
                   duration: 0.6,
@@ -75,7 +69,8 @@ const Hero = () => {
               <motion.span
                 className={styles.name}
                 initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 transition={{
                   delay: 0.3,
                   duration: 0.6,
@@ -89,13 +84,13 @@ const Hero = () => {
             <motion.div
               className={styles.typingContainer}
               initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               transition={{
                 delay: 0.4,
                 duration: 0.6,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              style={{ willChange: "opacity, transform" }}
             >
               <TypingEffect
                 texts={texts}
@@ -108,13 +103,13 @@ const Hero = () => {
             <motion.p
               className={styles.description}
               initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               transition={{
                 delay: 0.5,
                 duration: 0.6,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              style={{ willChange: "opacity, transform" }}
             >
               I specialize in crafting digital experiences that are both
               innovative and accessible, using modern web technologies to build
@@ -124,24 +119,17 @@ const Hero = () => {
             <motion.div
               className={styles.buttons}
               initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               transition={{
                 delay: 0.6,
                 duration: 0.6,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              style={{ willChange: "opacity, transform" }}
             >
               <motion.a
                 href="#contact"
                 className={styles.primaryButton}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 10 }}
-                transition={{
-                  delay: 0.6,
-                  duration: 0.6,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
                 whileHover={{
                   y: -2,
                   transition: { duration: 0.2 },
@@ -175,13 +163,6 @@ const Hero = () => {
               <motion.a
                 href="#projects"
                 className={styles.secondaryButton}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 10 }}
-                transition={{
-                  delay: 0.7,
-                  duration: 0.6,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
                 whileHover={{
                   y: -2,
                   transition: { duration: 0.2 },
@@ -216,16 +197,13 @@ const Hero = () => {
           <motion.div
             className={styles.profileImageContainer}
             initial={{ opacity: 0, y: 20 }}
-            animate={{
-              opacity: inView ? 1 : 0,
-              y: inView ? 0 : 20,
-            }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
             transition={{
               duration: 0.8,
               ease: [0.16, 1, 0.3, 1],
               delay: 0.4,
             }}
-            style={{ willChange: "opacity, transform" }}
           >
             <div className={styles.profileImageWrapper}>
               <Image
@@ -247,7 +225,8 @@ const Hero = () => {
         className={styles.scrollDown}
         onClick={handleScrollDown}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
         transition={{ delay: 0.8, duration: 0.6 }}
         aria-label="Scroll down to next section"
       >

@@ -147,6 +147,19 @@ export default function FloatingResume() {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isExpanded, closeModal]);
 
+  // Get viewport bounds considering scroll position
+  const getViewportBounds = useCallback(() => {
+    if (!boxRef.current) return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+
+    const boxRect = boxRef.current.getBoundingClientRect();
+    return {
+      minX: 0,
+      maxX: window.innerWidth - boxRect.width,
+      minY: 0,
+      maxY: window.innerHeight - boxRect.height,
+    };
+  }, []);
+
   // Initialize client-side state and set up window resize listener
   useEffect(() => {
     setIsClient(true);
@@ -164,20 +177,7 @@ export default function FloatingResume() {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameRef.current);
     };
-  }, []);
-
-  // Get viewport bounds considering scroll position
-  const getViewportBounds = useCallback(() => {
-    if (!boxRef.current) return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
-
-    const boxRect = boxRef.current.getBoundingClientRect();
-    return {
-      minX: 0,
-      maxX: window.innerWidth - boxRect.width,
-      minY: 0,
-      maxY: window.innerHeight - boxRect.height,
-    };
-  }, []);
+  }, [getViewportBounds]);
 
   // Animation loop for floating effect with physics
   useEffect(() => {
@@ -324,8 +324,6 @@ export default function FloatingResume() {
           isExpanded ? styles.expanded : ""
         }`}
         style={{
-          // x: -xSpring,
-          // y: -ySpring,
           scale: isExpanded ? 1 : scale,
           rotate: rotate,
           zIndex: isExpanded ? 1000 : 100,
@@ -337,11 +335,7 @@ export default function FloatingResume() {
             "opacity 0.3s ease-in-out, right 0.3s ease-in-out, transform 0.3s ease-in-out",
           transform: visibilityState === 1 ? "scale(1.05)" : "scale(1)",
           pointerEvents: "auto",
-          right: visibilityState === 1 ? "10px" : "-200px",
-          borderLeft:
-            visibilityState === 1
-              ? "none"
-              : "10px solid rgba(103, 130, 248, 0.76)",
+          right: visibilityState === 1 ? "20px" : "-200px",
           visibility: visibilityState === 0 ? "hidden" : "visible",
         }}
         onClick={toggleExpand}
@@ -362,11 +356,8 @@ export default function FloatingResume() {
         }}
       >
         <div className={styles.resumeContent}>
-          <div
-            onClick={toggleExpand}
-            style={{ position: "relative" }}
-            className={styles.previewContainer}
-          >
+          <div className={styles.previewContainer}>
+            <div className={styles.previewOverlay} />
             <iframe
               src={`${pdfUrl}#view=fitH`}
               scrolling="no"
@@ -385,11 +376,24 @@ export default function FloatingResume() {
               title="Resume Preview"
               loading="lazy"
             />
+            <div className={styles.previewBadge}>
+              <FiFileText />
+              <span>PDF</span>
+            </div>
           </div>
-          <div className={styles.resumeLabel}>
-            <FiFileText className={styles.resumeIcon} />
-            <span>View Resume</span>
-          </div>
+          <button className={styles.resumeLabel} onClick={toggleExpand}>
+            <div className={styles.labelContent}>
+              <div className={styles.labelIcon}>
+                <FiFileText />
+              </div>
+              <span className={styles.labelText}>View Resume</span>
+              <div className={styles.labelArrow}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </button>
         </div>
       </motion.div>
 
@@ -438,7 +442,10 @@ export default function FloatingResume() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className={styles.modalHeader}>
-                <h3>My Resume</h3>
+                <div className={styles.headerTitle}>
+                  <h3>My Resume</h3>
+                  <span className={styles.headerSubtitle}>Full-Stack Developer</span>
+                </div>
                 <div className={styles.headerActions}>
                   <button
                     className={`${styles.actionButton} ${styles.viewInNewTab}`}
@@ -480,9 +487,12 @@ export default function FloatingResume() {
                     height: "100%",
                     border: "none",
                     background: "transparent",
+                    transform: "translateZ(0)",
+                    willChange: "scroll-position",
                   }}
                   title="Full Resume"
                   allowFullScreen
+                  loading="lazy"
                 />
               </div>
             </motion.div>
