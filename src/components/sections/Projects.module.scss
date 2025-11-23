@@ -471,7 +471,7 @@
           opacity: 1;
         }
 
-        a {
+        a, button {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -486,6 +486,10 @@
           -webkit-backdrop-filter: blur(5px);
           position: relative;
           overflow: hidden;
+          cursor: pointer;
+          padding: 0;
+          font-family: inherit;
+          text-decoration: none;
 
           
           &::before {
@@ -1045,7 +1049,7 @@
       margin-top: 2.5rem;
       flex-wrap: wrap;
       
-      a {
+      a, button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1058,6 +1062,9 @@
         font-size: 0.95rem;
         min-width: 140px;
         text-align: center;
+        cursor: pointer;
+        border: none;
+        font-family: inherit;
         
         svg {
           font-size: 1.1em;
@@ -1488,5 +1495,268 @@
       background: rgba(0, 0, 0, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
+  }
+}
+
+// NDA Popup Styles
+.ndaOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+  transform: translate3d(0, 0, 0);
+}
+
+.ndaPopup {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 24px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 0 80px rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(96, 165, 250, 0.05) 0%,
+      transparent 50%,
+      rgba(167, 139, 250, 0.05) 100%
+    );
+    pointer-events: none;
+  }
+}
+
+.ndaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.ndaIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(167, 139, 250, 0.2));
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  color: #60a5fa;
+  font-size: 28px;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+}
+
+.ndaCloseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  font-family: inherit;
+  position: relative;
+  z-index: 1;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transform: rotate(90deg);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.ndaContent {
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.ndaTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.3;
+}
+
+.ndaMessage {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 1rem 0;
+
+  strong {
+    color: #60a5fa;
+    font-weight: 600;
+  }
+}
+
+.ndaSubMessage {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+
+  strong {
+    color: #a78bfa;
+    font-weight: 600;
+  }
+}
+
+.ndaActions {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.ndaGithubButton {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  box-shadow: 0 4px 15px rgba(96, 165, 250, 0.3);
+  min-width: 180px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(96, 165, 250, 0.4);
+    filter: brightness(1.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.ndaCloseActionButton {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  min-width: 120px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Responsive styles for NDA popup
+@media (max-width: 768px) {
+  .ndaPopup {
+    max-width: 90%;
+    border-radius: 20px;
+  }
+
+  .ndaHeader {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .ndaIcon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .ndaContent {
+    padding: 1.5rem;
+  }
+
+  .ndaTitle {
+    font-size: 1.5rem;
+  }
+
+  .ndaMessage,
+  .ndaSubMessage {
+    font-size: 0.9rem;
+  }
+
+  .ndaActions {
+    padding: 1.25rem 1.5rem;
+    flex-direction: column;
+  }
+
+  .ndaGithubButton,
+  .ndaCloseActionButton {
+    width: 100%;
+    min-width: unset;
   }
 }
