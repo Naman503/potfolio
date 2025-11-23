@@ -15,6 +15,8 @@ export default function FloatingResume() {
   const animationFrameRef = useRef<number>(0);
   const velocityY = useRef(0);
   const velocityX = useRef(0);
+  const isClosingRef = useRef(false);
+  const isOpeningRef = useRef(false);
   const gravity = 0;
   const friction = 0.98;
   const bounce = 0.8;
@@ -92,10 +94,23 @@ export default function FloatingResume() {
 
   // Handle modal close with cleanup
   const closeModal = useCallback(() => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+    
     // Restore scrolling before closing
-    document.body.style.overflow = "";
-    document.documentElement.style.overflow = "";
-    setIsExpanded(false);
+    requestAnimationFrame(() => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      
+      // Small delay to ensure scroll restoration happens before state update
+      requestAnimationFrame(() => {
+        setIsExpanded(false);
+        // Reset closing flag after animation completes
+        setTimeout(() => {
+          isClosingRef.current = false;
+        }, 300);
+      });
+    });
   }, []);
 
   // Toggle expand state with animation and prevent background scroll
@@ -105,11 +120,22 @@ export default function FloatingResume() {
       const willExpand = !isExpanded;
 
       if (willExpand) {
-        // Prevent scrolling on body and html elements
-        document.body.style.overflow = "hidden";
-        document.documentElement.style.overflow = "hidden";
+        if (isOpeningRef.current) return;
+        isOpeningRef.current = true;
         
-        setIsExpanded(true);
+        // Prevent scrolling on body and html elements
+        requestAnimationFrame(() => {
+          document.body.style.overflow = "hidden";
+          document.documentElement.style.overflow = "hidden";
+          
+          requestAnimationFrame(() => {
+            setIsExpanded(true);
+            // Reset opening flag after animation completes
+            setTimeout(() => {
+              isOpeningRef.current = false;
+            }, 300);
+          });
+        });
       } else {
         closeModal();
       }
@@ -398,46 +424,27 @@ export default function FloatingResume() {
       </motion.div>
 
       {/* PDF Preview Modal */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {isExpanded && (
           <motion.div
+            key="resume-modal"
             className={styles.overlay}
             onClick={handleOverlayClick}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            variants={{
-              open: { opacity: 1 },
-              closed: { opacity: 0 },
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <motion.div
+              key="resume-modal-content"
               className={styles.modal}
-              initial="closed"
-              animate="open"
-              exit="closed"
-              variants={{
-                open: {
-                  opacity: 1,
-                  scale: 1,
-                  y: 0,
-                  transition: {
-                    duration: 0.25,
-                    ease: [0.16, 1, 0.3, 1],
-                    opacity: { duration: 0.2 },
-                  },
-                },
-                closed: {
-                  opacity: 0,
-                  scale: 0.95,
-                  y: 20,
-                  transition: {
-                    duration: 0.2,
-                    ease: [0.4, 0, 0.2, 1],
-                    opacity: { duration: 0.15 },
-                  },
-                },
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{
+                duration: 0.25,
+                ease: [0.16, 1, 0.3, 1],
+                opacity: { duration: 0.2 },
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -480,19 +487,10 @@ export default function FloatingResume() {
 
               <div className={styles.modalContent}>
                 <iframe
-                  src={`${pdfUrl}#toolbar=0&navpanes=0&view=FitH`}
+                  src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
                   className={styles.fullPdfIframe}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    border: "none",
-                    background: "transparent",
-                    transform: "translateZ(0)",
-                    willChange: "scroll-position",
-                  }}
                   title="Full Resume"
                   allowFullScreen
-                  loading="lazy"
                 />
               </div>
             </motion.div>
