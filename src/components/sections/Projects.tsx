@@ -69,6 +69,7 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
   // State for modal
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showNdaPopup, setShowNdaPopup] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const isClosingRef = useRef(false); // Prevent multiple close calls
   const isOpeningRef = useRef(false); // Prevent multiple open calls
@@ -159,21 +160,45 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
     }, 250); // Slightly longer than animation duration (200ms)
   }, [isModalOpen]);
 
+  // Handle GitHub button click - show NDA popup
+  const handleGithubClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowNdaPopup(true);
+  }, []);
+
+  // Close NDA popup
+  const closeNdaPopup = useCallback(() => {
+    setShowNdaPopup(false);
+  }, []);
+
+  // Open GitHub profile
+  const openGithubProfile = useCallback(() => {
+    window.open("https://github.com/Naman503", "_blank", "noopener,noreferrer");
+    setShowNdaPopup(false);
+  }, []);
+
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isModalOpen && !isClosingRef.current) {
-        e.preventDefault();
-        e.stopPropagation();
-        closeModal();
+      if (e.key === "Escape") {
+        if (showNdaPopup) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeNdaPopup();
+        } else if (isModalOpen && !isClosingRef.current) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        }
       }
     },
-    [closeModal, isModalOpen]
+    [closeModal, isModalOpen, showNdaPopup, closeNdaPopup]
   );
 
   // Add/remove event listeners
   useEffect(() => {
-    if (isModalOpen) {
+    if (isModalOpen || showNdaPopup) {
       // Prevent background scrolling
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
@@ -183,11 +208,17 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
       
       return () => {
         document.removeEventListener("keydown", handleKeyDown);
-        document.body.style.overflow = "";
-        document.documentElement.style.overflow = "";
+        if (!isModalOpen && !showNdaPopup) {
+          document.body.style.overflow = "";
+          document.documentElement.style.overflow = "";
+        }
       };
+    } else {
+      // Restore scrolling when both modals are closed
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     }
-  }, [isModalOpen, handleKeyDown]);
+  }, [isModalOpen, showNdaPopup, handleKeyDown]);
 
   // Images are already preloaded during the loading screen, so no need to preload again
   // This reduces redundant network requests and improves performance
@@ -266,15 +297,17 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
               <div className={styles.projectFooter}>
                 <div className={styles.projectLinks}>
                   {project.githubUrl && (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
                       aria-label={`View ${project.title} on GitHub`}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGithubClick(e);
+                      }}
+                      className={styles.githubButton}
                     >
                       <FiGithub />
-                    </a>
+                    </button>
                   )}
                   {(project.liveUrl || project.demoUrl) && (
                     <a
@@ -402,15 +435,16 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
                   </div>
                   <div className={styles.projectLinks}>
                     {selectedProject.githubUrl && (
-                      <a
-                        href={selectedProject.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
                         className={`${styles.github} ${styles.projectLink}`}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGithubClick(e);
+                        }}
                       >
                         <FiGithub /> View Code
-                      </a>
+                      </button>
                     )}
                     {(selectedProject.liveUrl || selectedProject.demoUrl) && (
                       <a
@@ -469,6 +503,81 @@ const Projects: FC<ProjectsProps> = ({ projects = [] }): JSX.Element => {
             </motion.div>
           </motion.div>
         ) : null}
+      </AnimatePresence>
+
+      {/* NDA Popup */}
+      <AnimatePresence>
+        {showNdaPopup && (
+          <motion.div
+            key="nda-popup-overlay"
+            className={styles.ndaOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={closeNdaPopup}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="nda-popup-title"
+          >
+            <motion.div
+              key="nda-popup-content"
+              className={styles.ndaPopup}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ 
+                duration: 0.3, 
+                ease: [0.16, 1, 0.3, 1]
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.ndaHeader}>
+                <div className={styles.ndaIcon}>
+                  <FiGithub />
+                </div>
+                <button
+                  className={styles.ndaCloseButton}
+                  onClick={closeNdaPopup}
+                  aria-label="Close popup"
+                  type="button"
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <div className={styles.ndaContent}>
+                <h3 id="nda-popup-title" className={styles.ndaTitle}>
+                  Code Not Available
+                </h3>
+                <p className={styles.ndaMessage}>
+                  Due to <strong>Non-Disclosure Agreement (NDA)</strong>, I cannot share the source code for this project.
+                </p>
+                <p className={styles.ndaSubMessage}>
+                  However, you can check out my <strong>open-source projects</strong> on my GitHub profile to see my coding skills and contributions!
+                </p>
+              </div>
+
+              <div className={styles.ndaActions}>
+                <button
+                  className={styles.ndaGithubButton}
+                  onClick={openGithubProfile}
+                  type="button"
+                >
+                  <FiGithub />
+                  Go to GitHub Profile
+                </button>
+                <button
+                  className={styles.ndaCloseActionButton}
+                  onClick={closeNdaPopup}
+                  type="button"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </section>
   );
